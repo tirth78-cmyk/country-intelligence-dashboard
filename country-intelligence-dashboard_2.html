@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Country Intelligence Library — Study Start-Up</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f3ef;
+  --surface: #ffffff;
+  --surface2: #faf9f6;
+  --text: #1a1a1a;
+  --text2: #5a5a5a;
+  --text3: #8a8a8a;
+  --border: #e5e2dc;
+  --accent: #2d5a3d;
+  --accent-light: #e8f0eb;
+  --accent2: #4a6fa5;
+  --accent2-light: #e6edf5;
+  --amber: #b8860b;
+  --amber-light: #fef7e6;
+  --coral: #c85a3a;
+  --coral-light: #fef0eb;
+  --purple: #6b5b95;
+  --purple-light: #f0edf5;
+  --teal: #2d7d6b;
+  --teal-light: #e6f3f0;
+  --red: #a33;
+  --red-light: #fce8e8;
+  --font: 'DM Sans', -apple-system, sans-serif;
+  --serif: 'Source Serif 4', Georgia, serif;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; }
+::selection { background: var(--accent-light); }
+
+.app { min-height: 100vh; }
+
+/* Top nav */
+.topnav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  height: 56px;
+  gap: 24px;
+  position: sticky; top: 0; z-index: 100;
+}
+.topnav-brand {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+  letter-spacing: -0.3px;
+}
+.topnav-brand span { color: var(--text3); font-weight: 400; font-family: var(--font); font-size: 13px; margin-left: 8px; }
+.topnav-tabs {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+.topnav-tab {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.topnav-tab:hover { background: var(--surface2); color: var(--text); }
+.topnav-tab.active { background: var(--accent); color: #fff; }
+
+/* Toolbar */
+.toolbar {
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.toolbar-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); }
+select, .search-input {
+  font-family: var(--font);
+  font-size: 13px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+select:focus, .search-input:focus { border-color: var(--accent); }
+select { cursor: pointer; min-width: 160px; }
+.search-input { width: 220px; }
+
+/* Main content */
+.main { padding: 0 32px 48px; }
+
+/* ====== VIEW 1: Country Deep-Dive ====== */
+.country-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px 24px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+.country-flag {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+}
+.country-name { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+.country-meta { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.summary-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+}
+.summary-card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 4px; }
+.summary-card-value { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+.summary-card-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+.category-section {
+  margin-bottom: 20px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.category-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  cursor: pointer;
+  user-select: none;
+  gap: 10px;
+  transition: background 0.1s;
+}
+.category-header:hover { background: var(--surface2); }
+.cat-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.cat-title { font-size: 14px; font-weight: 600; flex: 1; }
+.cat-count { font-size: 12px; color: var(--text3); background: var(--surface2); padding: 2px 8px; border-radius: 10px; }
+.cat-chevron { font-size: 13px; color: var(--text3); transition: transform 0.2s; }
+.cat-chevron.open { transform: rotate(90deg); }
+
+.qa-list { padding: 0 20px 16px; }
+.qa-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.qa-item:last-child { border-bottom: none; }
+.qa-question { font-size: 13px; color: var(--text2); margin-bottom: 4px; }
+.qa-answer { font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.6; }
+
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-right: 4px;
+}
+.tag-yes { background: var(--accent-light); color: var(--accent); }
+.tag-no { background: var(--coral-light); color: var(--coral); }
+.tag-info { background: var(--accent2-light); color: var(--accent2); }
+.tag-warn { background: var(--amber-light); color: var(--amber); }
+.tag-purple { background: var(--purple-light); color: var(--purple); }
+
+/* ====== VIEW 2: Cross-Country Comparison ====== */
+.comparison-grid {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 24px;
+}
+.comp-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  min-width: 900px;
+}
+.comp-table th, .comp-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.comp-table thead th {
+  background: var(--surface);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text2);
+  position: sticky; top: 56px; z-index: 10;
+  border-bottom: 2px solid var(--border);
+}
+.comp-table thead th:first-child {
+  position: sticky; left: 0; z-index: 11;
+  background: var(--surface);
+  min-width: 240px;
+}
+.comp-table tbody td:first-child {
+  position: sticky; left: 0;
+  background: var(--surface);
+  font-weight: 500;
+  min-width: 240px;
+  z-index: 5;
+}
+.comp-table tbody tr { background: var(--surface); }
+.comp-table tbody tr:hover { background: var(--surface2); }
+.comp-table tbody tr.cat-row {
+  background: var(--surface2);
+}
+.comp-table tbody tr.cat-row td {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--accent);
+  padding: 14px;
+  border-bottom: 2px solid var(--border);
+}
+.cell-yes { color: var(--accent); font-weight: 600; }
+.cell-no { color: var(--coral); font-weight: 600; }
+.cell-timeline { color: var(--amber); font-weight: 600; }
+
+/* ====== VIEW 3: Insights Heat Map ====== */
+.heatmap-container {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 24px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+.heatmap-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.heatmap-subtitle { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+
+.heatmap-grid {
+  display: grid;
+  gap: 3px;
+  min-width: 700px;
+}
+.hm-cell {
+  padding: 8px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  transition: transform 0.1s;
+  cursor: default;
+  line-height: 1.3;
+}
+.hm-cell:hover { transform: scale(1.04); }
+.hm-header { font-weight: 700; font-size: 12px; background: none !important; color: var(--text2); }
+.hm-row-header { text-align: left; font-weight: 600; font-size: 12px; color: var(--text); display: flex; align-items: center; }
+
+.hm-green { background: #d4edda; color: #155724; }
+.hm-yellow { background: #fff3cd; color: #856404; }
+.hm-red { background: #f8d7da; color: #721c24; }
+.hm-blue { background: #d1ecf1; color: #0c5460; }
+.hm-gray { background: #e9ecef; color: #495057; }
+
+.insight-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.insight-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 20px;
+}
+.insight-card-icon { font-size: 22px; margin-bottom: 8px; }
+.insight-card-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.insight-card-body { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.insight-card-body strong { color: var(--text); font-weight: 600; }
+
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--text2);
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-dot { width: 14px; height: 14px; border-radius: 3px; }
+
+/* Empty states */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+}
+.empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state-text { font-size: 15px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .topnav, .toolbar, .main { padding-left: 16px; padding-right: 16px; }
+  .summary-cards { grid-template-columns: repeat(2, 1fr); }
+  .country-header { flex-direction: column; text-align: center; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// ======= DATA =======
+
+const COUNTRIES = {
+  "India": {
+    flag: "🇮🇳", region: "Asia Pacific", regulatory: "CDSCO", ec: "Local IRB + Central EC", language: "Hindi, English",
+    ctaTimeline: "60-90 days", ecTimeline: "30-45 days", ctagTimeline: "45-60 days",
+    siteActivation: "90-120 days", totalStartup: "150-210 days"
+  },
+  "Germany": {
+    flag: "🇩🇪", region: "Europe", regulatory: "BfArM / PEI", ec: "Central EC", language: "German",
+    ctaTimeline: "30-45 days", ecTimeline: "30-60 days", ctagTimeline: "30-45 days",
+    siteActivation: "60-90 days", totalStartup: "90-150 days"
+  },
+  "Brazil": {
+    flag: "🇧🇷", region: "Latin America", regulatory: "ANVISA", ec: "CEP + CONEP", language: "Portuguese",
+    ctaTimeline: "90-180 days", ecTimeline: "60-90 days", ctagTimeline: "60-90 days",
+    siteActivation: "120-180 days", totalStartup: "210-360 days"
+  },
+  "Japan": {
+    flag: "🇯🇵", region: "Asia Pacific", regulatory: "PMDA", ec: "Central IRB", language: "Japanese",
+    ctaTimeline: "30 days", ecTimeline: "30-45 days", ctagTimeline: "30-45 days",
+    siteActivation: "60-90 days", totalStartup: "90-150 days"
+  },
+  "South Korea": {
+    flag: "🇰🇷", region: "Asia Pacific", regulatory: "MFDS", ec: "Local IRB", language: "Korean",
+    ctaTimeline: "30 days", ecTimeline: "21-30 days", ctagTimeline: "30-45 days",
+    siteActivation: "60-75 days", totalStartup: "90-120 days"
+  }
+};
+
+// Categories with subcategories + questions + country answers
+const CATEGORIES = [
+  {
+    id: "cta",
+    title: "CTA submission & approval",
+    icon: "📋",
+    color: "var(--accent)",
+    bgColor: "var(--accent-light)",
+    subcategories: [
+      {
+        name: "Submission process",
+        questions: [
+          { q: "Is CTA submission done online or offline?", answers: { India: "Online via SUGAM portal (CDSCO)", Germany: "Online via CESP (EU CTR) and national BfArM portal", Brazil: "Online via ANVISA Peticionamento Eletrônico", Japan: "Online via PMDA gateway submission system", "South Korea": "Online via MFDS e-submission portal" }},
+          { q: "Who (role) does CTA submission?", answers: { India: "Regulatory Affairs Manager with CRO support", Germany: "Regulatory Affairs Lead (sponsor or CRO)", Brazil: "Local Regulatory Affairs Manager — must be licensed pharmacist", Japan: "Regulatory Affairs Lead through authorized local representative", "South Korea": "Regulatory Affairs Manager (in-house or CRO)" }},
+          { q: "CTA submitted in English or local language?", answers: { India: "English accepted", Germany: "German required for most documents; English for scientific documents only", Brazil: "Portuguese required for all submission documents", Japan: "Japanese required; English synopsis accepted as supplement", "South Korea": "Korean required; English protocol accepted with Korean summary" }},
+        ]
+      },
+      {
+        name: "Approval timelines",
+        questions: [
+          { q: "CTA approval timeline — Interventional / Non-Interventional?", answers: { India: "Interventional: 60-90 days; NIS: 30-45 days", Germany: "Interventional: 30-45 days (EU CTR); NIS: notification only", Brazil: "Interventional: 90-180 days; NIS: 60-90 days", Japan: "Interventional: 30 days (clinical notification); NIS: notification only", "South Korea": "Interventional: 30 days; NIS: notification only (21 days)" }},
+          { q: "Is EC approval required for CTA submission or approval?", answers: { India: "EC approval required before CTA submission", Germany: "EC and CTA can be submitted in parallel", Brazil: "CEP approval required before ANVISA submission", Japan: "IRB approval can be obtained in parallel with PMDA notification", "South Korea": "IRB approval can proceed in parallel with MFDS review" }},
+        ]
+      },
+      {
+        name: "Import / export license",
+        questions: [
+          { q: "Are Import/Export license and CTA submitted together or sequentially?", answers: { India: "Sequentially — IL/EL after CTA approval from CDSCO", Germany: "Together — import permit part of CTA; no separate license needed", Brazil: "Sequentially — ANVISA import authorization after CTA approval", Japan: "Sequentially — import notification after PMDA acknowledgment", "South Korea": "Sequentially — import permit after MFDS IND approval" }},
+          { q: "Import/Export license approval timeline for IMP?", answers: { India: "30-45 days after CTA approval", Germany: "Included in CTA approval; 2-4 weeks for QP release", Brazil: "60-90 days post-CTA approval", Japan: "14-21 days post-notification", "South Korea": "14-21 days post-approval" }},
+          { q: "Import/Export license validity?", answers: { India: "Valid for duration of study; annual renewal of quantity certificate", Germany: "Study duration; no separate renewal", Brazil: "Per shipment basis; new authorization for each import", Japan: "Study duration; quantity-based tracking required", "South Korea": "Study duration; annual import quantity report required" }},
+          { q: "Is Import/Export license required for ancillary supplies/equipment?", answers: { India: "Yes — separate import license required for ancillary supplies and electronic devices", Germany: "No — ancillary supplies exempt; medical devices need CE mark", Brazil: "Yes — separate ANVISA authorization for non-registered devices", Japan: "Depends on classification; medical devices need separate notification", "South Korea": "Yes for medical devices; non-medical ancillaries exempt" }},
+        ]
+      },
+      {
+        name: "Registration & compliance",
+        questions: [
+          { q: "Is complete list of sites required for CTA submission?", answers: { India: "Yes — all sites must be listed in CTA", Germany: "No — sites can be added post-approval via substantial amendment", Brazil: "Yes — all sites must be listed in initial ANVISA submission", Japan: "No — sites can be added after clinical notification", "South Korea": "No — sites can be added after IND approval via notification" }},
+          { q: "Additional sites after CTA approval — HA/CA approval or notification?", answers: { India: "Amendment and CDSCO approval required for additional sites", Germany: "Substantial amendment required under EU CTR", Brazil: "Amendment to ANVISA; new CEP approval per site", Japan: "Notification to PMDA; no approval needed", "South Korea": "Notification to MFDS; new IRB approval per site" }},
+          { q: "Is registration on local clinical trial registry required?", answers: { India: "Yes — CTRI registration mandatory before enrollment of first patient", Germany: "Yes — EudraCT registration mandatory (automatic via EU CTR)", Brazil: "Yes — ReBEC registration mandatory before first patient enrollment", Japan: "Yes — JRCT registration required before first patient", "South Korea": "Yes — CRIS registration required before first patient enrollment" }},
+          { q: "LOA or LAR required for CTA submission?", answers: { India: "LAR (Local Authorized Representative) required if sponsor has no legal entity in India", Germany: "Legal representative in EU required under EU CTR", Brazil: "Local authorized representative required if no local legal entity", Japan: "LAR mandatory — must be a Japan-based entity", "South Korea": "LAR required if sponsor has no Korean entity" }},
+          { q: "What type of insurance is required for CTA submission?", answers: { India: "Country-level clinical trial insurance; site-specific certificates", Germany: "Country-level insurance per AMG §40; proof required for CTA", Brazil: "Country-level insurance; SUSEP-registered insurer required", Japan: "Study-level insurance; GCP-compliant coverage required", "South Korea": "Study-level insurance; coverage per subject required" }},
+          { q: "Frequency of trial progress report notification?", answers: { India: "Annually and for all SAEs within 14 days", Germany: "Annually (DSUR/ASR under EU CTR)", Brazil: "Semi-annually to ANVISA; annually to CEP", Japan: "Annually to PMDA", "South Korea": "Annually to MFDS and IRB" }},
+          { q: "Early trial termination — notification or approval required?", answers: { India: "Notification to CDSCO and EC within 30 days; reasons required", Germany: "Notification to BfArM and EC within 15 days", Brazil: "Notification to ANVISA and CEP within 30 days", Japan: "Notification to PMDA within 30 days", "South Korea": "Notification to MFDS and IRB within 15 days" }},
+          { q: "End of trial notification required?", answers: { India: "Yes — within 90 days of last patient last visit", Germany: "Yes — within 1 year of end of trial (EU CTR)", Brazil: "Yes — final report to ANVISA and CEP within 180 days", Japan: "Yes — notification to PMDA and IRBs", "South Korea": "Yes — within 80 days to MFDS" }},
+        ]
+      }
+    ]
+  },
+  {
+    id: "ctag",
+    title: "CTAg negotiations",
+    icon: "📝",
+    color: "var(--accent2)",
+    bgColor: "var(--accent2-light)",
+    subcategories: [
+      {
+        name: "Agreement structure",
+        questions: [
+          { q: "Which CTAg template is used — sponsor, site, or standard local?", answers: { India: "Sponsor (BMS) template with local modifications for Indian law", Germany: "Standardized German contract template (Mustervertrag) required at most sites", Brazil: "Sponsor template adapted to Brazilian civil code requirements", Japan: "Sponsor template; some academic sites insist on their own template", "South Korea": "Sponsor template accepted at most sites; major academic centers use their own" }},
+          { q: "Bipartite, tripartite, or quadripartite CTAg?", answers: { India: "Tripartite (sponsor, site, investigator)", Germany: "Bipartite (sponsor and site/institution)", Brazil: "Tripartite (sponsor, institution, investigator)", Japan: "Bipartite (sponsor and institution — PI covered under institution)", "South Korea": "Tripartite at academic sites; bipartite at private sites" }},
+          { q: "English or bilingual CTAg acceptable?", answers: { India: "English acceptable", Germany: "Bilingual required (English + German)", Brazil: "Portuguese required; bilingual (English + Portuguese) acceptable", Japan: "Japanese required; bilingual (English + Japanese) acceptable", "South Korea": "Bilingual required (English + Korean)" }},
+          { q: "Wet ink or electronic signature acceptable?", answers: { India: "Wet ink required at most sites; e-signature gaining acceptance via IT Act 2000", Germany: "Electronic signature (qualified) acceptable under eIDAS", Brazil: "Both acceptable; e-signature via ICP-Brasil digital certificates", Japan: "Wet ink (hanko seal) strongly preferred; e-signature slowly being adopted", "South Korea": "Electronic signature acceptable under Korean E-Signature Act" }},
+        ]
+      },
+      {
+        name: "Timeline & process",
+        questions: [
+          { q: "Is draft CTAg required for EC submission?", answers: { India: "Yes — draft CTAg required as part of EC dossier", Germany: "No — CTAg not required for EC submission", Brazil: "Yes — draft CTAg required for CEP submission", Japan: "No — contract finalized after IRB approval", "South Korea": "No — CTAg not part of IRB submission package" }},
+          { q: "Draft CTAg to FE CTAg average timeline?", answers: { India: "45-60 days average", Germany: "30-45 days; longer if Mustervertrag negotiation required", Brazil: "60-90 days due to institutional legal review processes", Japan: "30-45 days; faster at experienced sites", "South Korea": "30-45 days on average" }},
+          { q: "FE CTAg notification/submission to EC, HA/CA required?", answers: { India: "Yes — FE CTAg must be submitted to EC for records", Germany: "No regulatory requirement to submit FE CTAg", Brazil: "Yes — FE CTAg must be notified to CEP and ANVISA", Japan: "No — notification to PMDA not required", "South Korea": "No — FE CTAg not required by IRB or MFDS" }},
+          { q: "Is FE CTAg notarization required?", answers: { India: "Not required; stamp paper attestation may be needed for some sites", Germany: "Not required", Brazil: "Not required; notarized translation may be needed for foreign-language originals", Japan: "Not required", "South Korea": "Not required" }},
+        ]
+      }
+    ]
+  },
+  {
+    id: "ec",
+    title: "Ethics Committee (EC/IRB)",
+    icon: "⚖️",
+    color: "var(--purple)",
+    bgColor: "var(--purple-light)",
+    subcategories: [
+      {
+        name: "Submission process",
+        questions: [
+          { q: "How is EC submission done — online or hard copy?", answers: { India: "Both — varies by EC; major ECs moving to online portals, many still require hard copy dossiers", Germany: "Online via CESP portal under EU CTR for central EC", Brazil: "Online via Plataforma Brasil for all CEP submissions", Japan: "Primarily hard copy; some central IRBs have online portals", "South Korea": "Online for major academic IRBs; hard copy at smaller sites" }},
+          { q: "Local IRB or central EC in your country?", answers: { India: "Both — site-level IRBs (registered with CDSCO) and central ECs available; most sponsors use local IRBs", Germany: "Central EC (lead EC under EU CTR) + local ECs for co-review", Brazil: "Local CEP at each institution + CONEP for special protocols (gene therapy, biosimilars, etc.)", Japan: "Both — central IRBs gaining popularity; CRB (Certified Review Board) for specified clinical trials", "South Korea": "Local IRB at each site; central IRB services available" }},
+          { q: "Is EC registration mandatory? Lifetime or periodic renewal?", answers: { India: "Yes — mandatory registration with CDSCO; renewal every 5 years", Germany: "Yes — EC must be registered; recognition is ongoing", Brazil: "Yes — CEP registration with CONEP; re-accreditation every 3 years", Japan: "Yes — CRB certification required; renewal every 3 years", "South Korea": "Yes — IRB registration with MFDS; annual review" }},
+          { q: "Is RA/HA approval required for initial EC dossier submission?", answers: { India: "No — EC submission can proceed before CDSCO approval", Germany: "No — parallel submission allowed under EU CTR", Brazil: "No — CEP submission proceeds independently; CONEP if required", Japan: "No — IRB review proceeds independently of PMDA notification", "South Korea": "No — IRB review proceeds independently" }},
+        ]
+      },
+      {
+        name: "Translation requirements",
+        questions: [
+          { q: "Do patient-facing documents require translation in local languages?", answers: { India: "Yes — IC, diary cards, eCOA, patient alert cards must be in local languages (Hindi + regional)", Germany: "Yes — all patient-facing documents must be in German", Brazil: "Yes — all documents must be in Portuguese", Japan: "Yes — all documents must be in Japanese", "South Korea": "Yes — all patient-facing documents must be in Korean" }},
+          { q: "Languages required for translation?", answers: { India: "Hindi + up to 14 regional languages depending on site locations (Tamil, Telugu, Marathi, Bengali, etc.)", Germany: "German only", Brazil: "Portuguese (Brazilian) only", Japan: "Japanese only", "South Korea": "Korean only" }},
+          { q: "Is protocol translation required?", answers: { India: "No — English protocol accepted", Germany: "No — English protocol accepted; German synopsis for EC", Brazil: "No — English protocol accepted with Portuguese synopsis", Japan: "Yes — full Japanese translation required for PMDA; English acceptable for some IRBs", "South Korea": "No — English protocol accepted; Korean synopsis for IRB" }},
+          { q: "Is IB translation (full or partial) required?", answers: { India: "No — English IB accepted", Germany: "No — English IB accepted", Brazil: "No — English IB accepted", Japan: "Partial — Japanese IB summary required; full translation for some IRBs", "South Korea": "No — English IB accepted" }},
+        ]
+      },
+      {
+        name: "Meeting & review",
+        questions: [
+          { q: "EC meeting frequency?", answers: { India: "Monthly at most ECs; quarterly at smaller institutions", Germany: "Monthly for lead EC; varies by local EC", Brazil: "Monthly for most CEPs; CONEP reviews continuously", Japan: "Monthly for most central IRBs; bi-monthly at smaller institutions", "South Korea": "Monthly or bi-monthly depending on IRB" }},
+          { q: "Is expedited EC review meeting feasible?", answers: { India: "Possible at select central ECs for a premium fee; not standard", Germany: "Not standard; accelerated assessment possible for certain study types", Brazil: "Not standard; CONEP has priority review for COVID/emergency studies", Japan: "Possible for some CRBs; expedited review pathway exists for regenerative medicine", "South Korea": "Possible at major academic centers for expedited fee" }},
+          { q: "EC dossier submission lead time before meeting?", answers: { India: "2-3 weeks before scheduled EC meeting date", Germany: "4-6 weeks before EC meeting under EU CTR timelines", Brazil: "Submit anytime; CEP reviews in sequence (30-60 day clock)", Japan: "2-3 weeks before scheduled IRB meeting", "South Korea": "2-3 weeks before IRB meeting date" }},
+          { q: "Time for EC to release final approval letter post meeting?", answers: { India: "5-15 business days post EC meeting", Germany: "7-10 business days post meeting", Brazil: "Up to 30 days from CEP meeting (regulatory clock)", Japan: "7-14 business days", "South Korea": "5-10 business days" }},
+          { q: "Timeline to submit EC query response?", answers: { India: "No fixed timeline; recommended within 30 days to avoid protocol review reset", Germany: "Strict timeline under EU CTR — 12 days to respond to RFI", Brazil: "30 days from CEP query; failure to respond leads to protocol archival", Japan: "30 days recommended; no strict regulatory deadline", "South Korea": "30 days recommended; no strict deadline" }},
+          { q: "Average IRB/EC approval timeline?", answers: { India: "30-45 days from complete dossier submission", Germany: "30-60 days under EU CTR combined assessment", Brazil: "60-90 days (CEP); additional 30-60 days if CONEP review required", Japan: "30-45 days from complete submission", "South Korea": "21-30 days from complete submission" }},
+        ]
+      },
+      {
+        name: "Document requirements",
+        questions: [
+          { q: "Is draft ePRO (eCOA) screenshot acceptable for initial EC submission?", answers: { India: "Draft screenshots acceptable; final required before SIV", Germany: "Final screenshots strongly preferred; draft acceptable with justification", Brazil: "Draft acceptable for initial CEP submission", Japan: "Final screenshots preferred; draft acceptable at some IRBs", "South Korea": "Draft acceptable for initial IRB submission" }},
+          { q: "Is draft eCRF acceptable for initial EC submission?", answers: { India: "Draft eCRF acceptable", Germany: "Draft acceptable; final required pre-SIV", Brazil: "Draft acceptable", Japan: "Draft acceptable", "South Korea": "Draft acceptable" }},
+          { q: "Is clinical trial advertising for patient recruitment permitted?", answers: { India: "Restricted — permitted with EC approval and CDSCO guidelines; social media ads require specific approvals", Germany: "Permitted with EC approval; must comply with HWG (advertising law)", Brazil: "Restricted — advertising prohibited under Resolution 466/12; only approved referral pathways allowed", Japan: "Restricted — direct-to-patient advertising generally not permitted; physician referral is standard", "South Korea": "Permitted with IRB approval; advertisements must be reviewed and approved" }},
+          { q: "Is FE CTAg required for initial EC submission? Or draft acceptable?", answers: { India: "Draft CTAg acceptable for EC submission", Germany: "CTAg not required for EC submission", Brazil: "Draft CTAg acceptable for CEP submission", Japan: "CTAg not required for IRB submission", "South Korea": "CTAg not required for IRB submission" }},
+          { q: "Is country/site-specific insurance required for initial EC submission?", answers: { India: "Yes — insurance certificate required for EC submission; both certificate and policy needed", Germany: "Yes — insurance certificate mandatory; AMG §40 compliance required", Brazil: "Yes — insurance certificate required; SUSEP-registered insurer required", Japan: "Yes — insurance certificate required for IRB submission", "South Korea": "Yes — insurance certificate required for IRB submission" }},
+        ]
+      }
+    ]
+  },
+  {
+    id: "ic",
+    title: "Informed Consent (IC)",
+    icon: "📄",
+    color: "var(--teal)",
+    bgColor: "var(--teal-light)",
+    subcategories: [
+      {
+        name: "Template & process",
+        questions: [
+          { q: "Is English country IC template available?", answers: { India: "Yes — English master template available; regional translations maintained by local RA team", Germany: "Yes — English template available; German translation mandatory", Brazil: "No — Portuguese IC developed from English master; local RA team manages", Japan: "No — Japanese IC template is the primary document", "South Korea": "Yes — English master available; Korean translation required" }},
+          { q: "Who is responsible for updating country IC template?", answers: { India: "Country Regulatory Affairs Manager in coordination with global medical writing", Germany: "Local Regulatory Affairs Lead", Brazil: "Local RA Manager with input from medical and legal teams", Japan: "Local RA Lead with medical monitor review", "South Korea": "Local RA Manager" }},
+          { q: "Is GreenPhire IC used for patient travel reimbursement or included in main IC?", answers: { India: "Separate GreenPhire IC supplement used; not part of main IC", Germany: "Included as section within main IC", Brazil: "Not used — patient reimbursement managed through institution; separate IC clause", Japan: "Not used — travel reimbursement handled through site contract", "South Korea": "Separate GreenPhire IC supplement used" }},
+          { q: "Are country or site IC or both applicable?", answers: { India: "Both — country-level master IC + site-specific addendum", Germany: "Country IC only; site-specific addenda for local information", Brazil: "Both — country IC + site-specific addendum required by each CEP", Japan: "Country IC with site customization; each IRB may request modifications", "South Korea": "Country IC with site-specific modifications per IRB request" }},
+          { q: "Which language IC is used for EC/HA submission?", answers: { India: "Local language IC submitted to EC; English version for CDSCO", Germany: "German IC submitted to EC", Brazil: "Portuguese IC submitted to CEP", Japan: "Japanese IC submitted to IRB", "South Korea": "Korean IC submitted to IRB" }},
+        ]
+      }
+    ]
+  },
+  {
+    id: "insurance",
+    title: "Insurance & indemnity",
+    icon: "🛡️",
+    color: "var(--amber)",
+    bgColor: "var(--amber-light)",
+    subcategories: [
+      {
+        name: "Insurance procurement",
+        questions: [
+          { q: "Trigger and timepoint to start insurance procurement?", answers: { India: "Start at protocol finalization; complete before EC submission (4-6 weeks lead time)", Germany: "Start at CTA preparation; complete before CTA submission (3-4 weeks)", Brazil: "Start at protocol finalization; complete before CEP submission (6-8 weeks for SUSEP compliance)", Japan: "Start at study setup; complete before IRB submission (3-4 weeks)", "South Korea": "Start at IND preparation; complete before IRB submission (3-4 weeks)" }},
+          { q: "Who coordinates insurance and indemnity procurement?", answers: { India: "Country Study Start-Up Lead with global insurance broker coordination", Germany: "EU Regional Trial Manager with central insurance procurement team", Brazil: "Country RA Manager with legal team and local insurance broker", Japan: "Country Operations Manager with global insurance team", "South Korea": "Country Study Manager with global procurement" }},
+          { q: "Insurance certificate only or policy document also required for EC/HA?", answers: { India: "Both — insurance certificate AND policy document required for EC; certificate sufficient for CDSCO", Germany: "Certificate sufficient for EC and BfArM; policy available on request", Brazil: "Both required for CEP submission", Japan: "Certificate sufficient for IRB submission", "South Korea": "Certificate sufficient for IRB and MFDS" }},
+          { q: "Country or site-level insurance?", answers: { India: "Site-level certificates with country-level policy; each site named", Germany: "Country-level insurance; covers all sites", Brazil: "Country-level with site-specific certificates; SUSEP compliance", Japan: "Study-level insurance covering all sites", "South Korea": "Study-level insurance covering all sites" }},
+          { q: "Does English insurance certificate suffice or local language required?", answers: { India: "English certificate accepted by most ECs; some regional ECs require Hindi/local language translation", Germany: "German certificate required; bilingual acceptable", Brazil: "Portuguese required", Japan: "Japanese required; English original with Japanese translation acceptable", "South Korea": "Korean required; bilingual acceptable" }},
+        ]
+      }
+    ]
+  },
+  {
+    id: "csr",
+    title: "CSR submission & notification",
+    icon: "📊",
+    color: "var(--coral)",
+    bgColor: "var(--coral-light)",
+    subcategories: [
+      {
+        name: "CSR & PLS distribution",
+        questions: [
+          { q: "Is CSR/PLS notification or submission to EC required?", answers: { India: "Yes — CSR submission to EC required within 1 year of study completion", Germany: "Yes — summary results posted on EU CTR within 1 year; lay summary within 6 months", Brazil: "Yes — final report to CEP required within 180 days of study completion", Japan: "Yes — CSR notification to IRBs required", "South Korea": "Yes — CSR notification to IRB required" }},
+          { q: "Is CSR/PLS notification or submission to HA required?", answers: { India: "Yes — CSR submission to CDSCO required", Germany: "Yes — via EU CTR portal (automatic)", Brazil: "Yes — final report to ANVISA required", Japan: "Yes — CSR submission to PMDA required", "South Korea": "Yes — CSR notification to MFDS required" }},
+          { q: "Is English or local language CSR/PLS required?", answers: { India: "English CSR accepted", Germany: "English CSR accepted; German lay summary (PLS) required", Brazil: "Portuguese CSR summary required; English full CSR accepted", Japan: "Japanese CSR summary required; English full CSR accepted", "South Korea": "English CSR accepted; Korean PLS required" }},
+          { q: "Is only final CSR or all types required for EC/HA?", answers: { India: "Final CSR only", Germany: "Summary results + final CSR via EU CTR; interim CSR if applicable", Brazil: "Final report only; interim reports for long-duration studies", Japan: "Final CSR; interim reports per PMDA request", "South Korea": "Final CSR only" }},
+        ]
+      }
+    ]
+  },
+  {
+    id: "country_activation",
+    title: "Country activation process",
+    icon: "🌍",
+    color: "#6366f1",
+    bgColor: "#eef2ff",
+    subcategories: [
+      {
+        name: "Country feasibility & selection",
+        questions: [
+          { q: "What is the typical country feasibility assessment process and timeline?", answers: { India: "4-6 weeks; includes therapeutic landscape review, KOL mapping, regulatory pathway analysis, site universe assessment", Germany: "3-4 weeks; standardized EU CTR feasibility template; regulatory and reimbursement landscape review", Brazil: "6-8 weeks; includes ANVISA pathway assessment, CONEP requirement check, regional patient pool analysis", Japan: "4-6 weeks; PMDA consultation review, site landscape assessment, patient availability analysis", "South Korea": "3-4 weeks; MFDS pathway review, KOL assessment, competitive landscape analysis" }},
+          { q: "What are the key bottlenecks in country activation?", answers: { India: "CDSCO approval delays, insurance procurement for multiple sites, regional language translation backlog", Germany: "Mustervertrag CTAg negotiations at academic sites, lead EC slot availability, GBA assessment for reimbursement", Brazil: "ANVISA timeline unpredictability, CONEP dual review for certain study types, import authorization delays", Japan: "PMDA pre-consultation scheduling, hanko seal requirements, Japanese translation turnaround for full documents", "South Korea": "Budget negotiation at top academic centers, IRB meeting frequency at smaller sites" }},
+          { q: "Average time from final protocol available to country activation?", answers: { India: "90-120 days (without CDSCO delays)", Germany: "60-90 days under EU CTR", Brazil: "120-180 days", Japan: "60-90 days", "South Korea": "45-60 days" }},
+        ]
+      },
+      {
+        name: "Local team & vendor setup",
+        questions: [
+          { q: "What local vendors are typically required for study start-up?", answers: { India: "Local CRO for regulatory submissions, translation vendor (multi-language), insurance broker, import agent for IMP, courier for biological samples", Germany: "Translation vendor (certified), insurance broker (EU-compliant), central lab logistics partner", Brazil: "Local CRO (mandatory for foreign sponsors), translation vendor, SUSEP-registered insurance broker, ANVISA import agent", Japan: "Local CRO or partner for PMDA submissions, certified translation agency, import logistics provider", "South Korea": "Translation vendor, local CRO (optional), import customs broker" }},
+          { q: "Are there restrictions on patient compensation or payment?", answers: { India: "Compensation for travel and time allowed; no payment for participation per CDSCO guidelines and EC policy", Germany: "Reasonable compensation permitted; must be approved by EC; no undue inducement", Brazil: "No financial compensation for participation; only reimbursement for travel and related expenses per Resolution 466/12", Japan: "Transportation and time compensation permitted; amounts reviewed by IRB; no participation payment", "South Korea": "Compensation for transport, meals, and time permitted; amounts per IRB approval" }},
+        ]
+      }
+    ]
+  },
+  {
+    id: "site_activation",
+    title: "Site activation process",
+    icon: "🏥",
+    color: "#0891b2",
+    bgColor: "#ecfeff",
+    subcategories: [
+      {
+        name: "Site selection & qualification",
+        questions: [
+          { q: "What is the standard site qualification visit (SQV) process?", answers: { India: "In-person SQV required; includes facility assessment, PI CV review, pharmacy and lab capability check, patient pool estimation; 1-2 days per site", Germany: "Virtual SQV increasingly accepted; facility assessment, GCP compliance check, pharmacy qualification, subject pool assessment", Brazil: "In-person SQV standard; includes infrastructure assessment, regulatory documentation check, PI qualifications, patient access evaluation", Japan: "In-person SQV required; detailed facility assessment, GCP compliance, study coordinator availability, patient recruitment potential", "South Korea": "Virtual or in-person SQV; facility and equipment check, PI experience review, patient database assessment" }},
+          { q: "Average time from site selection to site initiation visit (SIV)?", answers: { India: "90-120 days including IRB approval, CTAg execution, and regulatory greenlight", Germany: "60-90 days; faster with experienced sites under EU CTR", Brazil: "120-180 days; highly variable based on institutional bureaucracy", Japan: "60-90 days at experienced sites; longer at academic centers", "South Korea": "60-75 days; faster at CRO-experienced sites" }},
+          { q: "Key site-level bottlenecks in activation?", answers: { India: "IRB meeting scheduling, CTAg legal review at government hospitals, pharmacy setup for IMP storage, local language IC approval", Germany: "Mustervertrag negotiation delays, local EC co-review timeline, pharmacy qualification and IMP release", Brazil: "Institutional board approval (separate from CEP), budget negotiation, pharmacy and lab infrastructure readiness", Japan: "IRB meeting frequency, contract negotiation at academic centers, study coordinator training and allocation", "South Korea": "IRB review cycles, budget negotiation at top centers, study nurse allocation" }},
+        ]
+      },
+      {
+        name: "Site contracts & budget",
+        questions: [
+          { q: "What is the typical budget negotiation process with sites?", answers: { India: "Fair Market Value (FMV) based; 2-3 rounds of negotiation typical; government hospital rates significantly lower than private", Germany: "Based on GOÄ (physician fee schedule) + overhead; standardized at some networks; 1-2 rounds", Brazil: "Institution-specific; multiple approval layers (finance, legal, medical director); 3-5 rounds common", Japan: "Negotiation through clinical trial office; 2-3 rounds; academic center rates fixed by institution", "South Korea": "FMV-based; 2-3 rounds; academic center budgets often non-negotiable" }},
+          { q: "Are there standard per-patient payment ranges?", answers: { India: "Varies widely: ₹50,000–₹2,00,000 per patient depending on complexity; government vs. private differential", Germany: "€3,000–€10,000 per patient typical for Phase II-III; varies by therapeutic area", Brazil: "R$5,000–R$25,000 per patient; varies significantly by institution tier", Japan: "¥300,000–¥1,000,000 per patient; academic center premium of 20-30%", "South Korea": "₩2,000,000–₩8,000,000 per patient; varies by study complexity and site tier" }},
+        ]
+      },
+      {
+        name: "Site readiness & SIV",
+        questions: [
+          { q: "What site readiness checks are performed before SIV?", answers: { India: "IRB approval, FE CTAg, insurance certificate, IMP delivered, pharmacy setup verified, site personnel GCP-trained, IVRS/IWRS setup complete", Germany: "EC approval, CTA approval, FE contract, IMP delivery and QP release, pharmacy and lab ready, staff trained", Brazil: "CEP + CONEP approval (if applicable), FE CTAg, ANVISA approval, IMP import authorization, insurance, pharmacy readiness", Japan: "IRB approval, PMDA notification, FE contract, IMP delivery, site personnel trained, IVRS/eCOA systems tested", "South Korea": "IRB approval, MFDS IND approval, FE contract, IMP delivered, IVRS/eCOA/eCRF access confirmed" }},
+          { q: "Is pre-study site training conducted remotely or on-site?", answers: { India: "Hybrid — protocol training on-site at SIV; system training (EDC, IVRS, eCOA) conducted remotely", Germany: "Primarily remote; on-site SIV focuses on protocol and study-specific procedures", Brazil: "On-site SIV preferred; remote system training for EDC and eCOA", Japan: "On-site SIV mandatory for protocol training; remote training for electronic systems", "South Korea": "Hybrid — protocol SIV on-site; system training remote" }},
+        ]
+      }
+    ]
+  }
+];
+
+// ======= HELPER FUNCTIONS =======
+
+function getAnswerTag(answer) {
+  const lower = answer.toLowerCase();
+  if (lower.startsWith('yes') || lower.includes('accepted') || lower.includes('permitted') || lower.includes('approved')) return 'yes';
+  if (lower.startsWith('no') || lower.includes('prohibited') || lower.includes('not required') || lower.includes('not standard')) return 'no';
+  return null;
+}
+
+function getAllQuestions() {
+  const qs = [];
+  CATEGORIES.forEach(cat => {
+    cat.subcategories.forEach(sub => {
+      sub.questions.forEach(q => qs.push({ ...q, category: cat.title, subcategory: sub.name, catId: cat.id }));
+    });
+  });
+  return qs;
+}
+
+// ======= STATE =======
+let state = {
+  view: 'country', // 'country', 'comparison', 'insights'
+  selectedCountry: 'India',
+  comparisonCategory: 'cta',
+  searchQuery: '',
+  expandedCats: {},
+  analysisTab: 'time',
+};
+
+function setState(updates) {
+  Object.assign(state, updates);
+  render();
+}
+
+// ======= RENDER =======
+
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    ${renderTopNav()}
+    ${renderToolbar()}
+    <div class="main">
+      ${state.view === 'country' ? renderCountryView() : ''}
+      ${state.view === 'comparison' ? renderComparisonView() : ''}
+      ${state.view === 'insights' ? renderInsightsView() : ''}
+      ${state.view === 'analysis' ? renderAnalysisView() : ''}
+    </div>
+  `;
+  bindEvents();
+}
+
+function renderTopNav() {
+  return `
+    <div class="topnav">
+      <div class="topnav-brand">Country Intelligence Library <span>Study Start-Up</span></div>
+      <div class="topnav-tabs">
+        <button class="topnav-tab ${state.view==='country'?'active':''}" data-view="country">Country deep-dive</button>
+        <button class="topnav-tab ${state.view==='comparison'?'active':''}" data-view="comparison">Cross-country comparison</button>
+        <button class="topnav-tab ${state.view==='insights'?'active':''}" data-view="insights">Insights & heat map</button>
+        <button class="topnav-tab ${state.view==='analysis'?'active':''}" data-view="analysis">Analysis & process flow</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderToolbar() {
+  const countries = Object.keys(COUNTRIES);
+  if (state.view === 'country') {
+    return `
+      <div class="toolbar">
+        <span class="toolbar-label">Country</span>
+        <select id="country-select">
+          ${countries.map(c => `<option value="${c}" ${c===state.selectedCountry?'selected':''}>${COUNTRIES[c].flag} ${c}</option>`).join('')}
+        </select>
+        <span class="toolbar-label" style="margin-left:12px">Search</span>
+        <input type="text" class="search-input" id="search-input" placeholder="Filter questions..." value="${state.searchQuery}">
+      </div>
+    `;
+  }
+  if (state.view === 'comparison') {
+    return `
+      <div class="toolbar">
+        <span class="toolbar-label">Category</span>
+        <select id="comp-category-select">
+          ${CATEGORIES.map(c => `<option value="${c.id}" ${c.id===state.comparisonCategory?'selected':''}>${c.icon} ${c.title}</option>`).join('')}
+        </select>
+        <span class="toolbar-label" style="margin-left:12px">Search</span>
+        <input type="text" class="search-input" id="search-input" placeholder="Filter questions..." value="${state.searchQuery}">
+      </div>
+    `;
+  }
+  if (state.view === 'analysis') {
+    return '';
+  }
+  return `<div class="toolbar"><span class="toolbar-label">Insights across all 5 countries</span></div>`;
+}
+
+function renderAnalysisToolbar() {
+  const tabs = [
+    { id: 'time', label: 'Most time-consuming' },
+    { id: 'earliest', label: 'Start earliest' },
+    { id: 'parallel', label: 'Parallel vs sequential' },
+    { id: 'bottlenecks', label: 'Bottlenecks' },
+    { id: 'flow', label: 'Process flow' },
+    { id: 'recs', label: 'Recommendations' },
+  ];
+  return `<div class="toolbar" style="gap:6px">
+    ${tabs.map(t => `<button class="topnav-tab ${state.analysisTab===t.id?'active':''}" data-atab="${t.id}" style="font-size:12px;padding:6px 12px">${t.label}</button>`).join('')}
+  </div>`;
+}
+
+// ====== VIEW 1: COUNTRY DEEP-DIVE ======
+
+function renderCountryView() {
+  const c = state.selectedCountry;
+  const info = COUNTRIES[c];
+  const query = state.searchQuery.toLowerCase();
+  
+  let html = `
+    <div class="country-header">
+      <div class="country-flag">${info.flag}</div>
+      <div>
+        <div class="country-name">${c}</div>
+        <div class="country-meta">${info.region} · Regulatory: ${info.regulatory} · EC: ${info.ec}</div>
+      </div>
+    </div>
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="summary-card-label">CTA approval</div>
+        <div class="summary-card-value" style="color:var(--accent)">${info.ctaTimeline}</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-label">EC approval</div>
+        <div class="summary-card-value" style="color:var(--purple)">${info.ecTimeline}</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-label">CTAg execution</div>
+        <div class="summary-card-value" style="color:var(--accent2)">${info.ctagTimeline}</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-label">Site activation</div>
+        <div class="summary-card-value" style="color:var(--teal)">${info.siteActivation}</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-label">Total start-up</div>
+        <div class="summary-card-value" style="color:var(--coral)">${info.totalStartup}</div>
+      </div>
+    </div>
+  `;
+
+  CATEGORIES.forEach(cat => {
+    const isExpanded = state.expandedCats[cat.id] !== false; // default open
+    let filteredSubs = cat.subcategories.map(sub => {
+      const filteredQs = sub.questions.filter(q => {
+        if (!query) return true;
+        return q.q.toLowerCase().includes(query) || (q.answers[c]||'').toLowerCase().includes(query);
+      });
+      return { ...sub, questions: filteredQs };
+    }).filter(sub => sub.questions.length > 0);
+
+    if (query && filteredSubs.length === 0) return;
+    const totalQs = filteredSubs.reduce((sum, s) => sum + s.questions.length, 0);
+
+    html += `
+      <div class="category-section">
+        <div class="category-header" data-cat="${cat.id}">
+          <div class="cat-icon" style="background:${cat.bgColor};color:${cat.color}">${cat.icon}</div>
+          <div class="cat-title">${cat.title}</div>
+          <div class="cat-count">${totalQs} questions</div>
+          <div class="cat-chevron ${isExpanded ? 'open' : ''}">▶</div>
+        </div>
+        ${isExpanded ? `<div class="qa-list">
+          ${filteredSubs.map(sub => `
+            <div style="margin-bottom:12px">
+              <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${cat.color};margin-bottom:8px;padding-top:8px;border-top:1px dashed var(--border)">${sub.name}</div>
+              ${sub.questions.map(q => {
+                const ans = q.answers[c] || 'Data not yet available';
+                const tag = getAnswerTag(ans);
+                return `
+                  <div class="qa-item">
+                    <div class="qa-question">${q.q}</div>
+                    <div class="qa-answer">
+                      ${tag === 'yes' ? '<span class="tag tag-yes">Yes</span>' : ''}
+                      ${tag === 'no' ? '<span class="tag tag-no">No</span>' : ''}
+                      ${ans}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `).join('')}
+        </div>` : ''}
+      </div>
+    `;
+  });
+
+  return html;
+}
+
+// ====== VIEW 2: CROSS-COUNTRY COMPARISON ======
+
+function renderComparisonView() {
+  const cat = CATEGORIES.find(c => c.id === state.comparisonCategory);
+  if (!cat) return '';
+  const countries = Object.keys(COUNTRIES);
+  const query = state.searchQuery.toLowerCase();
+
+  let html = `<div class="comparison-grid"><table class="comp-table"><thead><tr>
+    <th>Question</th>
+    ${countries.map(c => `<th>${COUNTRIES[c].flag} ${c}</th>`).join('')}
+  </tr></thead><tbody>`;
+
+  cat.subcategories.forEach(sub => {
+    const filteredQs = sub.questions.filter(q => {
+      if (!query) return true;
+      if (q.q.toLowerCase().includes(query)) return true;
+      return countries.some(c => (q.answers[c]||'').toLowerCase().includes(query));
+    });
+    if (filteredQs.length === 0) return;
+
+    html += `<tr class="cat-row"><td colspan="${countries.length + 1}">${sub.name}</td></tr>`;
+    filteredQs.forEach(q => {
+      html += `<tr><td>${q.q}</td>`;
+      countries.forEach(c => {
+        const ans = q.answers[c] || '—';
+        const tag = getAnswerTag(ans);
+        let cls = '';
+        if (tag === 'yes') cls = 'cell-yes';
+        else if (tag === 'no') cls = 'cell-no';
+        else if (ans.match(/\d+.*days/i)) cls = 'cell-timeline';
+        html += `<td class="${cls}">${ans}</td>`;
+      });
+      html += '</tr>';
+    });
+  });
+
+  html += '</tbody></table></div>';
+  return html;
+}
+
+// ====== VIEW 3: INSIGHTS & HEAT MAP ======
+
+function renderInsightsView() {
+  const countries = Object.keys(COUNTRIES);
+  
+  // Insight cards
+  let html = `
+    <div class="insight-cards">
+      <div class="insight-card">
+        <div class="insight-card-icon">⏱️</div>
+        <div class="insight-card-title">Fastest start-up</div>
+        <div class="insight-card-body"><strong>South Korea</strong> has the shortest average total start-up time at 90-120 days, driven by streamlined MFDS processes and efficient IRB turnaround of 21-30 days.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-card-icon">⚠️</div>
+        <div class="insight-card-title">Longest start-up</div>
+        <div class="insight-card-body"><strong>Brazil</strong> has the longest average total start-up at 210-360 days, primarily due to ANVISA unpredictability, dual CEP/CONEP review, and per-shipment import authorizations.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-card-icon">🌐</div>
+        <div class="insight-card-title">Translation burden</div>
+        <div class="insight-card-body"><strong>India</strong> has the highest translation burden with up to 14+ regional languages required for patient-facing documents. All other countries need single local language translation.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-card-icon">📋</div>
+        <div class="insight-card-title">Parallel processing</div>
+        <div class="insight-card-body"><strong>Germany, Japan, South Korea</strong> allow parallel CTA and EC submissions, saving 30-45 days vs. sequential requirements in India and Brazil.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-card-icon">🔏</div>
+        <div class="insight-card-title">E-signature readiness</div>
+        <div class="insight-card-body"><strong>Japan</strong> is the last holdout preferring wet ink (hanko seal) for CTAg. Germany, Brazil, and South Korea fully accept e-signatures; India is transitioning.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-card-icon">💰</div>
+        <div class="insight-card-title">Budget variability</div>
+        <div class="insight-card-body"><strong>Brazil</strong> has the most complex budget negotiation (3-5 rounds) with multiple institutional approval layers. Germany offers more standardized GOÄ-based pricing.</div>
+      </div>
+    </div>
+  `;
+
+  // Timeline heat map
+  const timelineData = [
+    { metric: "CTA approval", key: "ctaTimeline", thresholds: [45, 90] },
+    { metric: "EC approval", key: "ecTimeline", thresholds: [35, 60] },
+    { metric: "CTAg execution", key: "ctagTimeline", thresholds: [45, 60] },
+    { metric: "Site activation", key: "siteActivation", thresholds: [75, 120] },
+    { metric: "Total start-up", key: "totalStartup", thresholds: [120, 180] },
+  ];
+
+  function getHeatColor(val, thresholds) {
+    const num = parseInt(val);
+    if (isNaN(num)) return 'hm-gray';
+    if (num <= thresholds[0]) return 'hm-green';
+    if (num <= thresholds[1]) return 'hm-yellow';
+    return 'hm-red';
+  }
+
+  html += `
+    <div class="heatmap-container">
+      <div class="heatmap-title">Timeline heat map — key milestones</div>
+      <div class="heatmap-subtitle">Green = fast (&le; threshold) · Yellow = moderate · Red = slow (&gt; threshold). Values show ranges in days.</div>
+      <div class="heatmap-grid" style="grid-template-columns: 160px repeat(${countries.length}, 1fr);">
+        <div class="hm-cell hm-header"></div>
+        ${countries.map(c => `<div class="hm-cell hm-header">${COUNTRIES[c].flag} ${c}</div>`).join('')}
+        ${timelineData.map(row => `
+          <div class="hm-cell hm-row-header">${row.metric}</div>
+          ${countries.map(c => {
+            const val = COUNTRIES[c][row.key];
+            const firstNum = parseInt(val);
+            const colorCls = getHeatColor(firstNum, row.thresholds);
+            return `<div class="hm-cell ${colorCls}">${val}</div>`;
+          }).join('')}
+        `).join('')}
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#d4edda"></div> Fast</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fff3cd"></div> Moderate</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f8d7da"></div> Slow</div>
+      </div>
+    </div>
+  `;
+
+  // Key regulatory requirements heat map
+  const reqData = [
+    { metric: "CTA online submission", values: { India: "Yes", Germany: "Yes", Brazil: "Yes", Japan: "Yes", "South Korea": "Yes" }},
+    { metric: "Parallel CTA + EC submission", values: { India: "No", Germany: "Yes", Brazil: "No", Japan: "Yes", "South Korea": "Yes" }},
+    { metric: "English protocol accepted", values: { India: "Yes", Germany: "Yes", Brazil: "Yes", Japan: "No", "South Korea": "Yes" }},
+    { metric: "E-signature for CTAg", values: { India: "Partial", Germany: "Yes", Brazil: "Yes", Japan: "No", "South Korea": "Yes" }},
+    { metric: "Central EC available", values: { India: "Yes", Germany: "Yes", Brazil: "Yes", Japan: "Yes", "South Korea": "Yes" }},
+    { metric: "Expedited EC review", values: { India: "Partial", Germany: "Partial", Brazil: "No", Japan: "Partial", "South Korea": "Yes" }},
+    { metric: "Patient recruitment ads allowed", values: { India: "Restricted", Germany: "Yes", Brazil: "No", Japan: "No", "South Korea": "Yes" }},
+    { metric: "LAR required (no local entity)", values: { India: "Yes", Germany: "Yes", Brazil: "Yes", Japan: "Yes", "South Korea": "Yes" }},
+    { metric: "All sites needed in CTA", values: { India: "Yes", Germany: "No", Brazil: "Yes", Japan: "No", "South Korea": "No" }},
+    { metric: "Draft CTAg ok for EC", values: { India: "Yes", Germany: "N/A", Brazil: "Yes", Japan: "N/A", "South Korea": "N/A" }},
+    { metric: "Multiple language translations", values: { India: "Yes (14+)", Germany: "No", Brazil: "No", Japan: "No", "South Korea": "No" }},
+    { metric: "Protocol translation required", values: { India: "No", Germany: "No", Brazil: "No", Japan: "Yes", "South Korea": "No" }},
+  ];
+
+  function getReqColor(val) {
+    const v = val.toLowerCase();
+    if (v === 'yes' || v.startsWith('yes')) return 'hm-green';
+    if (v === 'no') return 'hm-red';
+    if (v.includes('partial') || v.includes('restricted')) return 'hm-yellow';
+    return 'hm-blue';
+  }
+
+  html += `
+    <div class="heatmap-container">
+      <div class="heatmap-title">Regulatory requirements comparison</div>
+      <div class="heatmap-subtitle">Green = favorable/yes · Red = no/not available · Yellow = partial/restricted · Blue = special case</div>
+      <div class="heatmap-grid" style="grid-template-columns: 220px repeat(${countries.length}, 1fr);">
+        <div class="hm-cell hm-header"></div>
+        ${countries.map(c => `<div class="hm-cell hm-header">${COUNTRIES[c].flag} ${c}</div>`).join('')}
+        ${reqData.map(row => `
+          <div class="hm-cell hm-row-header">${row.metric}</div>
+          ${countries.map(c => {
+            const val = row.values[c] || '—';
+            return `<div class="hm-cell ${getReqColor(val)}">${val}</div>`;
+          }).join('')}
+        `).join('')}
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#d4edda"></div> Yes / favorable</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f8d7da"></div> No / unavailable</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fff3cd"></div> Partial / restricted</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#d1ecf1"></div> Special case</div>
+      </div>
+    </div>
+  `;
+
+  return html;
+}
+
+// ====== VIEW 4: ANALYSIS & PROCESS FLOW ======
+
+function renderAnalysisView() {
+  const tab = state.analysisTab;
+  let html = renderAnalysisToolbar();
+  
+  if (tab === 'time') html += renderTimeAnalysis();
+  else if (tab === 'earliest') html += renderEarliestTasks();
+  else if (tab === 'parallel') html += renderParallelSeq();
+  else if (tab === 'bottlenecks') html += renderBottlenecks();
+  else if (tab === 'flow') html += renderProcessFlow();
+  else if (tab === 'recs') html += renderRecommendations();
+  return html;
+}
+
+function renderTimeAnalysis() {
+  const data = [
+    { milestone: "CTA Approval", vals: { India: "60-90 days", Germany: "30-45 days", Brazil: "90-180 days", Japan: "30 days", "South Korea": "30 days" }, thresholds: [45, 90] },
+    { milestone: "EC/IRB Approval", vals: { India: "30-45 days", Germany: "30-60 days", Brazil: "60-90 days", Japan: "30-45 days", "South Korea": "21-30 days" }, thresholds: [35, 60] },
+    { milestone: "CTAg Execution", vals: { India: "45-60 days", Germany: "30-45 days", Brazil: "60-90 days", Japan: "30-45 days", "South Korea": "30-45 days" }, thresholds: [45, 60] },
+    { milestone: "Import/Export License", vals: { India: "30-45 days", Germany: "Included in CTA", Brazil: "60-90 days", Japan: "14-21 days", "South Korea": "14-21 days" }, thresholds: [30, 60] },
+    { milestone: "Site Activation (to SIV)", vals: { India: "90-120 days", Germany: "60-90 days", Brazil: "120-180 days", Japan: "60-90 days", "South Korea": "60-75 days" }, thresholds: [75, 120] },
+    { milestone: "TOTAL START-UP", vals: { India: "150-210 days", Germany: "90-150 days", Brazil: "210-360 days", Japan: "90-150 days", "South Korea": "90-120 days" }, thresholds: [120, 180] },
+  ];
+  const countries = Object.keys(COUNTRIES);
+  function getColor(val, t) {
+    const n = parseInt(val);
+    if (isNaN(n)) return '';
+    if (n <= t[0]) return 'background:#d4edda;color:#155724;font-weight:700';
+    if (n <= t[1]) return 'background:#fff3cd;color:#856404;font-weight:700';
+    return 'background:#f8d7da;color:#721c24;font-weight:700';
+  }
+  let html = `
+    <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:24px;margin-bottom:20px">
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">What is the most time-consuming step?</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px">CTA / Regulatory approval dominates the critical path in every country, consuming 30-50% of total start-up time</div>
+      <div style="overflow-x:auto;margin-bottom:8px">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:700px">
+          <thead><tr>
+            <th style="padding:10px 14px;text-align:left;background:var(--accent);color:#fff;font-weight:600;font-size:12px;border-bottom:2px solid var(--border)">Milestone</th>
+            ${countries.map(c => `<th style="padding:10px 14px;text-align:center;background:var(--accent);color:#fff;font-weight:600;font-size:12px;border-bottom:2px solid var(--border)">${COUNTRIES[c].flag} ${c}</th>`).join('')}
+          </tr></thead><tbody>`;
+  data.forEach(row => {
+    const isTotal = row.milestone === 'TOTAL START-UP';
+    html += `<tr style="${isTotal?'border-top:2px solid var(--accent);font-weight:700':''}"><td style="padding:10px 14px;border-bottom:1px solid var(--border);${isTotal?'font-weight:700':''}">${row.milestone}</td>`;
+    countries.forEach(c => {
+      const v = row.vals[c];
+      const style = getColor(v, row.thresholds);
+      html += `<td style="${style};text-align:center;padding:10px 8px;border-bottom:1px solid var(--border)">${v}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div></div>';
+  html += `<div class="insight-cards">
+    <div class="insight-card" style="border-left:4px solid var(--coral)">
+      <div style="font-size:14px;font-weight:700;color:var(--coral);margin-bottom:6px">⚠️ Longest: Brazil (210-360 days)</div>
+      <div style="font-size:13px;color:var(--text2)">ANVISA approval alone takes 90-180 days — the single most unpredictable timeline. Per-shipment import authorization adds further delays. Dual CEP+CONEP review for special protocols adds 30-60 days.</div>
+    </div>
+    <div class="insight-card" style="border-left:4px solid var(--accent)">
+      <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:6px">✅ Fastest: South Korea (90-120 days)</div>
+      <div style="font-size:13px;color:var(--text2)">MFDS IND takes just 30 days, IRB approval 21-30 days. Parallel CTA+EC processing and efficient regulatory infrastructure make it the benchmark to target.</div>
+    </div>
+    <div class="insight-card" style="border-left:4px solid var(--purple)">
+      <div style="font-size:14px;font-weight:700;color:var(--purple);margin-bottom:6px">🔑 Key Finding</div>
+      <div style="font-size:13px;color:var(--text2)">CTA/Regulatory Approval is the #1 time consumer in ALL countries. The variance is massive: 30 days (Japan/S. Korea) vs 90-180 days (Brazil). This single step determines country tiering strategy.</div>
+    </div>
+  </div>`;
+  return html;
+}
+
+function renderEarliestTasks() {
+  const tasks = [
+    { num: 1, title: "Insurance procurement", lead: "4-8 weeks", color: "var(--coral)", why: "Gates both CTA submission (Germany) and EC submission (India, Brazil). Without insurance certificate, no regulatory submission can proceed.", notes: "Brazil: 6-8 weeks (SUSEP-registered insurer). India: both certificate AND policy for EC. Germany: AMG §40 compliance for CTA." },
+    { num: 2, title: "Translation of patient-facing documents", lead: "3-6 weeks", color: "var(--amber)", why: "All countries require local-language IC for EC/IRB submission. Translation delays cascade directly into EC submission timeline.", notes: "India: up to 14+ regional languages — biggest backlog risk. Japan: full protocol translation for PMDA. All others: single local language." },
+    { num: 3, title: "CTA dossier preparation", lead: "2-4 weeks", color: "var(--purple)", why: "Collecting required documents (protocol, IB, IMPD, insurance, site lists) per local requirements. Incomplete dossiers cause rejection.", notes: "India & Brazil: complete site list required. Brazil: all documents in Portuguese. Germany: German for most non-scientific docs." },
+    { num: 4, title: "LAR / legal representative engagement", lead: "2-4 weeks", color: "var(--accent2)", why: "All 5 countries require LAR if no local entity. Must be in place before ANY regulatory submission.", notes: "Japan: LAR must be Japan-based (mandatory). Brazil: local rep required by ANVISA. EU CTR: EU-based legal representative." },
+    { num: 5, title: "Site identification & feasibility", lead: "3-6 weeks", color: "var(--teal)", why: "India and Brazil require complete site lists for CTA. Even where not required, early site engagement accelerates CTAg and IRB.", notes: "India: all sites in CDSCO CTA. Brazil: all sites in ANVISA submission. Germany: sites can be added post-approval." },
+    { num: 6, title: "Site budget pre-negotiation", lead: "2-4 weeks", color: "var(--text3)", why: "Starting budget discussions during feasibility saves 2-4 weeks on CTAg execution. Budget negotiation is a bottleneck in every country.", notes: "Brazil: 3-5 rounds typical. India: govt vs private rates differ. Germany: GOÄ-based standardized pricing." },
+  ];
+  let html = `<div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:24px;margin-bottom:20px">
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px">What tasks should be started at the earliest?</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:20px">These tasks have the longest lead times and gate downstream activities. Start at or before protocol finalization.</div>`;
+  tasks.forEach(t => {
+    html += `<div style="display:flex;gap:14px;margin-bottom:14px;padding:14px;background:var(--surface2);border-radius:var(--radius);border-left:4px solid ${t.color}">
+      <div style="min-width:36px;height:36px;border-radius:8px;background:${t.color};color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">${t.num}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <span style="font-size:14px;font-weight:700">${t.title}</span>
+          <span style="font-size:11px;font-weight:600;color:${t.color};background:${t.color}15;padding:2px 8px;border-radius:4px">Lead: ${t.lead}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:4px">${t.why}</div>
+        <div style="font-size:11px;color:var(--text3)">${t.notes}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderParallelSeq() {
+  const countries = Object.keys(COUNTRIES);
+  const parallelData = [
+    { pair: "CTA + EC/IRB submission", vals: { India: { text: "✗ Sequential", cls: "red" }, Germany: { text: "✓ Parallel", cls: "green" }, Brazil: { text: "✗ Sequential", cls: "red" }, Japan: { text: "✓ Parallel", cls: "green" }, "South Korea": { text: "✓ Parallel", cls: "green" } }},
+    { pair: "CTAg negotiation + EC review", vals: { India: { text: "Draft for EC", cls: "yellow" }, Germany: { text: "✓ Independent", cls: "green" }, Brazil: { text: "Draft for CEP", cls: "yellow" }, Japan: { text: "✓ Independent", cls: "green" }, "South Korea": { text: "✓ Independent", cls: "green" } }},
+    { pair: "Insurance + CTA preparation", vals: { India: { text: "✓ Parallel", cls: "green" }, Germany: { text: "✓ Parallel", cls: "green" }, Brazil: { text: "✓ Parallel", cls: "green" }, Japan: { text: "✓ Parallel", cls: "green" }, "South Korea": { text: "✓ Parallel", cls: "green" } }},
+    { pair: "Translation + site feasibility", vals: { India: { text: "✓ Parallel", cls: "green" }, Germany: { text: "✓ Parallel", cls: "green" }, Brazil: { text: "✓ Parallel", cls: "green" }, Japan: { text: "✓ Parallel", cls: "green" }, "South Korea": { text: "✓ Parallel", cls: "green" } }},
+    { pair: "Site feasibility + CTA prep", vals: { India: { text: "⚠ Sites for CTA", cls: "yellow" }, Germany: { text: "✓ Parallel", cls: "green" }, Brazil: { text: "⚠ Sites for CTA", cls: "yellow" }, Japan: { text: "✓ Parallel", cls: "green" }, "South Korea": { text: "✓ Parallel", cls: "green" } }},
+  ];
+  const clsMap = { green: "hm-green", red: "hm-red", yellow: "hm-yellow" };
+  let html = `<div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:24px;margin-bottom:20px">
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px">✓ Tasks that can run in PARALLEL</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Countries allowing parallel CTA + EC save 30-45 days on the critical path</div>
+    <div style="overflow-x:auto;margin-bottom:8px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:700px">
+        <thead><tr>
+          <th style="padding:10px 14px;text-align:left;background:var(--teal);color:#fff;font-weight:600;font-size:12px;border-bottom:2px solid var(--border)">Task pair</th>
+          ${countries.map(c => `<th style="padding:10px 14px;text-align:center;background:var(--teal);color:#fff;font-weight:600;font-size:12px;border-bottom:2px solid var(--border)">${COUNTRIES[c].flag} ${c}</th>`).join('')}
+        </tr></thead><tbody>`;
+  parallelData.forEach(row => {
+    html += `<tr><td style="padding:10px 14px;font-weight:600;border-bottom:1px solid var(--border)">${row.pair}</td>`;
+    countries.forEach(c => {
+      const v = row.vals[c];
+      html += `<td class="${clsMap[v.cls]}" style="text-align:center;font-weight:600;font-size:12px;padding:10px 8px;border-bottom:1px solid var(--border)">${v.text}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div></div>';
+
+  const seqDeps = [
+    { dep: "CTA Approval → Import/Export License", reason: "Import license can only begin after CTA approval (all except Germany)", impact: "Adds 14-90 days (Brazil worst: 60-90d)" },
+    { dep: "EC + CTA + FE CTAg → SIV", reason: "SIV cannot proceed until all three are approved — universal gate", impact: "Slowest of the three determines SIV date" },
+    { dep: "CTA requires: Protocol + IB + IMPD + Insurance", reason: "Dossier cannot be submitted without these documents", impact: "Any prep delay cascades 1:1 into CTA delay" },
+    { dep: "EC Approval → Patient Enrollment", reason: "No enrollment without ethics approval — universal", impact: "Hard gate: no workaround possible" },
+    { dep: "IMP Import → Delivery → Pharmacy → SIV Ready", reason: "Physical supply chain must happen in order", impact: "2-6 weeks; Brazil's per-shipment auth adds delays" },
+    { dep: "Protocol Finalization → All Activities", reason: "No submission can begin without final protocol", impact: "Every day of protocol delay = 1 day added to total" },
+  ];
+  html += `<div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:24px;margin-bottom:20px">
+    <div style="font-size:18px;font-weight:700;color:var(--coral);margin-bottom:4px">✗ Tasks that MUST run SEQUENTIALLY</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px">These dependencies are universal across all countries — no workaround</div>`;
+  seqDeps.forEach(s => {
+    html += `<div style="display:flex;gap:12px;margin-bottom:10px;padding:10px 14px;background:var(--red-light);border-radius:var(--radius);border-left:3px solid var(--coral)">
+      <div style="flex:1"><span style="font-weight:700;font-size:13px;color:var(--coral)">${s.dep}</span><br><span style="font-size:12px;color:var(--text2)">${s.reason}</span></div>
+      <div style="min-width:160px;font-size:11px;color:var(--text2);text-align:right">${s.impact}</div>
+    </div>`;
+  });
+  html += `<div style="margin-top:16px;padding:12px;background:var(--amber-light);border-radius:var(--radius);font-size:13px;font-weight:600;color:var(--amber)">Impact: Countries allowing parallel CTA + EC save 30-45 days. India and Brazil's sequential requirement is the biggest structural disadvantage.</div></div>`;
+  return html;
+}
+
+function renderBottlenecks() {
+  const data = [
+    { country: "🇧🇷 Brazil", severity: "CRITICAL", sevColor: "var(--coral)", sevBg: "var(--coral-light)", items: ["ANVISA approval: 90-180 days, highly unpredictable", "Dual CEP + CONEP review for special protocols (+30-60 days)", "Per-shipment import authorization (no blanket license)", "Budget negotiation: 3-5 rounds with multiple institutional layers", "No patient recruitment advertising permitted"] },
+    { country: "🇮🇳 India", severity: "HIGH", sevColor: "var(--amber)", sevBg: "var(--amber-light)", items: ["Translation into 14+ regional languages (3-6 week backlog)", "Sequential EC → CTA processing (no parallel allowed)", "All sites must be listed in CTA submission upfront", "Insurance: both certificate AND policy needed for EC", "Government hospital CTAg legal review delays"] },
+    { country: "🇩🇪 Germany", severity: "MODERATE", sevColor: "var(--accent2)", sevBg: "var(--accent2-light)", items: ["Mustervertrag negotiations at academic sites", "Lead EC slot availability (4-6 week submission lead time)", "Strict 12-day RFI response deadline under EU CTR", "Bilingual requirements for CTAg and insurance documents"] },
+    { country: "🇯🇵 Japan", severity: "MODERATE", sevColor: "var(--accent2)", sevBg: "var(--accent2-light)", items: ["Full Japanese translation for protocol and IB summary", "Hanko seal (wet ink) preference delays CTAg execution", "PMDA pre-consultation scheduling lead times", "Coordinator allocation at academic centers"] },
+    { country: "🇰🇷 South Korea", severity: "LOW", sevColor: "var(--accent)", sevBg: "var(--accent-light)", items: ["Budget negotiation at top academic centers (non-negotiable)", "IRB meeting frequency at smaller sites (bi-monthly)", "Bilingual document requirements (English + Korean)"] },
+  ];
+  let html = `<div style="font-size:18px;font-weight:700;margin-bottom:16px">What are the main bottlenecks?</div>`;
+  data.forEach(b => {
+    html += `<div class="category-section" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border)">
+        <span style="font-size:16px;font-weight:700">${b.country}</span>
+        <span style="font-size:11px;font-weight:700;color:${b.sevColor};background:${b.sevBg};padding:3px 10px;border-radius:4px">${b.severity}</span>
+      </div>
+      <div style="padding:12px 20px">
+        ${b.items.map(it => `<div style="padding:6px 0;font-size:13px;color:var(--text);border-bottom:1px solid var(--border)">→ ${it}</div>`).join('')}
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+function renderProcessFlow() {
+  function flowBox(label, sub, color, bg) {
+    return `<div style="background:${bg};border:2px solid ${color};border-radius:8px;padding:8px 14px;text-align:center;min-width:110px">
+      <div style="font-size:12px;font-weight:700;color:${color}">${label}</div>
+      ${sub ? `<div style="font-size:10px;color:var(--text3)">${sub}</div>` : ''}
+    </div>`;
+  }
+  const arrow = '<div style="font-size:18px;color:var(--text3);display:flex;align-items:center">→</div>';
+  const parallelBrace = '<div style="font-size:10px;font-weight:700;color:var(--teal);writing-mode:vertical-rl;padding:0 4px;border-left:2px dashed var(--teal);display:flex;align-items:center">PARALLEL</div>';
+
+  let html = `<div style="font-size:18px;font-weight:700;margin-bottom:20px">End-to-end process flow</div>`;
+
+  // Parallel model
+  html += `<div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:24px;margin-bottom:20px">
+    <div style="font-size:15px;font-weight:700;color:var(--teal);margin-bottom:4px">Model 1: Parallel (Germany, Japan, South Korea)</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px">CTA, EC, and CTAg run simultaneously — total: 90-150 days</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+      ${flowBox("Protocol", "Finalization", "var(--purple)", "var(--purple-light)")}
+      ${arrow}
+      ${flowBox("CTA Prep", "Dossier + docs", "var(--purple)", "var(--purple-light)")}
+      ${arrow}
+      <div style="display:flex;gap:4px">
+        ${parallelBrace}
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${flowBox("CTA Submission", "30-45 days", "var(--teal)", "var(--teal-light)")}
+          ${flowBox("EC Submission", "30-60 days", "var(--teal)", "var(--teal-light)")}
+          ${flowBox("CTAg Negotiation", "30-45 days", "var(--teal)", "var(--teal-light)")}
+        </div>
+      </div>
+      ${arrow}
+      ${flowBox("All Approvals", "Gate ⊕", "var(--amber)", "var(--amber-light)")}
+      ${arrow}
+      ${flowBox("Import License", "14-21 days", "var(--accent2)", "var(--accent2-light)")}
+      ${arrow}
+      ${flowBox("IMP Delivery", "& setup", "var(--accent2)", "var(--accent2-light)")}
+      ${arrow}
+      ${flowBox("SIV", "Site ready ✓", "var(--accent)", "var(--accent-light)")}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <div style="font-size:11px;color:var(--text3)">Pre-submission parallel tracks:</div>
+      ${flowBox("Insurance", "3-4 wks", "var(--purple)", "var(--purple-light)")}
+      ${flowBox("Translation", "3-6 wks", "var(--purple)", "var(--purple-light)")}
+      ${flowBox("Site Feasibility", "3-4 wks", "var(--purple)", "var(--purple-light)")}
+    </div>
+    <div style="margin-top:12px;padding:10px;background:var(--teal-light);border-radius:var(--radius);font-size:12px;font-weight:600;color:var(--teal)">Critical path: Protocol → CTA/EC/CTAg (parallel) → Approvals → Import → IMP → SIV | 90-150 days</div>
+  </div>`;
+
+  // Sequential: India
+  html += `<div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:24px;margin-bottom:20px">
+    <div style="font-size:15px;font-weight:700;color:var(--coral);margin-bottom:4px">Model 2: Sequential — India (EC first, then CTA)</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px">EC approval required before CTA submission — total: 150-210 days</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+      ${flowBox("Protocol +", "Prep (2-4 wks)", "var(--purple)", "var(--purple-light)")}
+      ${arrow}
+      ${flowBox("EC Approval", "30-45 days", "var(--teal)", "var(--teal-light)")}
+      ${arrow}
+      ${flowBox("CTA to CDSCO", "60-90 days", "var(--coral)", "var(--coral-light)")}
+      ${arrow}
+      ${flowBox("Import License", "30-45 days", "var(--accent2)", "var(--accent2-light)")}
+      ${arrow}
+      ${flowBox("IMP Delivery", "& setup", "var(--accent2)", "var(--accent2-light)")}
+      ${arrow}
+      ${flowBox("SIV", "✓", "var(--accent)", "var(--accent-light)")}
+    </div>
+    <div style="margin-top:12px;padding:10px;background:var(--coral-light);border-radius:var(--radius);font-size:12px;font-weight:600;color:var(--coral)">Critical path: EC (30-45d) → CTA (60-90d) → Import (30-45d) → SIV — ALL SEQUENTIAL | 150-210 days</div>
+  </div>`;
+
+  // Sequential: Brazil
+  html += `<div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:24px;margin-bottom:20px">
+    <div style="font-size:15px;font-weight:700;color:#991b1b;margin-bottom:4px">Model 3: Sequential — Brazil (longest critical path)</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px">CEP → CONEP → ANVISA → Import — total: 210-360 days</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+      ${flowBox("Protocol +", "Prep (4-6 wks)", "var(--purple)", "var(--purple-light)")}
+      ${arrow}
+      ${flowBox("CEP Review", "60-90 days", "var(--teal)", "var(--teal-light)")}
+      ${arrow}
+      ${flowBox("CONEP", "(if required)", "var(--teal)", "var(--teal-light)")}
+      ${arrow}
+      ${flowBox("ANVISA CTA", "90-180 days", "var(--coral)", "var(--coral-light)")}
+      ${arrow}
+      ${flowBox("Import Auth", "60-90 days", "var(--accent2)", "var(--accent2-light)")}
+      ${arrow}
+      ${flowBox("IMP", "Delivery", "var(--accent2)", "var(--accent2-light)")}
+      ${arrow}
+      ${flowBox("SIV", "✓", "var(--accent)", "var(--accent-light)")}
+    </div>
+    <div style="margin-top:12px;padding:10px;background:var(--coral-light);border-radius:var(--radius);font-size:12px;font-weight:600;color:#991b1b">Critical path: CEP (60-90d) → CONEP (30-60d) → ANVISA (90-180d) → Import (60-90d) → SIV — massive cascade risk | 210-360 days</div>
+  </div>`;
+  return html;
+}
+
+function renderRecommendations() {
+  const recs = [
+    { num: 1, title: "Pre-start activities at protocol draft stage", detail: "Begin insurance procurement, LAR engagement, site feasibility, and translation vendor selection during protocol development — not after finalization. This recovers 4-6 weeks on the critical path.", impact: "4-6 weeks saved", impColor: "var(--accent)" },
+    { num: 2, title: "Country-tiered start-up strategy", detail: "Activate S. Korea, Japan, Germany first (90-150 days). Stagger India (150-210 days). Start Brazil EARLIEST given 210-360 day timeline. Align enrollment targets to realistic activation dates.", impact: "Better enrollment planning", impColor: "var(--accent2)" },
+    { num: 3, title: "Maximize parallel processing", detail: "For India: submit EC and begin CTAg negotiation simultaneously. For Brazil: begin ANVISA prep during CEP review. Pre-negotiate budgets with sites during feasibility.", impact: "30-45 days saved", impColor: "var(--accent)" },
+    { num: 4, title: "Translation pipeline optimization", detail: "For India: create pre-translated template library for standard IC clauses in top 6-8 languages. Maintain certified translator panels. Addresses the single biggest country-specific bottleneck.", impact: "2-3 weeks saved", impColor: "var(--teal)" },
+    { num: 5, title: "Centralized country intelligence platform", detail: "Scale this prototype to all operational countries. Integrate with CTMS milestone data for predictive analytics. Establish quarterly refresh cycle with country SMEs.", impact: "Institutional knowledge", impColor: "var(--purple)" },
+    { num: 6, title: "Site budget pre-negotiation playbook", detail: "Develop country-specific FMV benchmarks and standard budget templates. Pre-negotiate during feasibility rather than post-selection. Reduces CTAg execution time.", impact: "2-4 weeks saved", impColor: "var(--teal)" },
+    { num: 7, title: "Regulatory intelligence early warning system", detail: "Build automated alerts for regulatory changes, EC meeting schedule changes, and import authorization delays. Proactive rather than reactive management.", impact: "Reduced variance", impColor: "var(--amber)" },
+  ];
+  let html = `<div style="font-size:18px;font-weight:700;margin-bottom:16px">Recommendations — reducing start-up cycle time</div>`;
+  recs.forEach(r => {
+    html += `<div style="display:flex;gap:14px;margin-bottom:14px;padding:16px;background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);border-left:4px solid ${r.impColor}">
+      <div style="min-width:36px;height:36px;border-radius:50%;background:${r.impColor};color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">${r.num}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px">${r.title}</div>
+        <div style="font-size:13px;color:var(--text2)">${r.detail}</div>
+      </div>
+      <div style="min-width:120px;display:flex;align-items:center;justify-content:center">
+        <span style="font-size:11px;font-weight:700;color:#fff;background:${r.impColor};padding:6px 12px;border-radius:6px;text-align:center">${r.impact}</span>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+// ====== EVENT BINDING ======
+
+function bindEvents() {
+  // Nav tabs
+  document.querySelectorAll('.topnav-tab[data-view]').forEach(btn => {
+    btn.addEventListener('click', () => setState({ view: btn.dataset.view, searchQuery: '' }));
+  });
+  // Analysis sub-tabs
+  document.querySelectorAll('[data-atab]').forEach(btn => {
+    btn.addEventListener('click', () => setState({ analysisTab: btn.dataset.atab }));
+  });
+  // Country select
+  const cs = document.getElementById('country-select');
+  if (cs) cs.addEventListener('change', () => setState({ selectedCountry: cs.value }));
+  // Comparison category select
+  const cc = document.getElementById('comp-category-select');
+  if (cc) cc.addEventListener('change', () => setState({ comparisonCategory: cc.value }));
+  // Search
+  const si = document.getElementById('search-input');
+  if (si) si.addEventListener('input', () => {
+    state.searchQuery = si.value;
+    render();
+    // Re-focus search after render
+    const newSi = document.getElementById('search-input');
+    if (newSi) { newSi.focus(); newSi.selectionStart = newSi.selectionEnd = newSi.value.length; }
+  });
+  // Category expand/collapse
+  document.querySelectorAll('.category-header').forEach(hdr => {
+    hdr.addEventListener('click', () => {
+      const catId = hdr.dataset.cat;
+      const wasExpanded = state.expandedCats[catId] !== false;
+      state.expandedCats[catId] = !wasExpanded;
+      render();
+    });
+  });
+}
+
+// ====== INIT ======
+render();
+</script>
+</body>
+</html>
